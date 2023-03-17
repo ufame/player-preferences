@@ -6,7 +6,13 @@ With this plugin, players can easily save and load their preferences, even on di
 
 ## Usage
 
-- From the import folder, take the init_.sql file and import it into your database
+1. From the import folder, take the init_.sql file and import it into your database
+2. Put the contents of the scripting folder in the directory of your server (your_server_folder/cstrike/addons/amxmodx/scripting)
+3. Compile `player_preferences.sma` [how to compile?](https://dev-cs.ru/threads/246/)
+4. Add `player_preferences.amxx` into your `plugins.ini` file
+5. Restart server or change map
+6. After restarting the server or changing the map, a config will be created in the folder `/cstrike/addons/amxmodx/configs/plugins` with the name `plugin-player_preferences.cfg`. In this config, enter the data to connect to your database
+7. Use [API](https://github.com/ufame/player-preferences/blob/master/scripting/include/player_prefs.inc) to create your own plugins that allow you to save user preferences!
 
 ## Example
 
@@ -41,3 +47,5 @@ public music_command(id) {
 }
 
 ```
+
+Another see [pp_test.sma](https://github.com/ufame/player-preferences/blob/master/scripting/pp_test.sma). This plugin is only for testing, but it fully works
