@@ -14,11 +14,10 @@ CREATE TABLE IF NOT EXISTS `pp_keys` (
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `pp_preferences` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `player_id` int(11) NOT NULL,
   `key_id` int(11) NOT NULL,
   `value` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`player_id`, `key_id`),
 
   FOREIGN KEY (`player_id`)
     REFERENCES `pp_players`(`id`)

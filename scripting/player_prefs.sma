@@ -26,6 +26,7 @@ new g_iPlayerDatabaseId[MAX_PLAYERS + 1];
 new Trie: g_tPlayerPreferences[MAX_PLAYERS + 1];
 
 new Trie: g_tKeys;
+new Trie: g_tKeysIds;
 
 new g_szSqlHost[32], g_szSqlUser[32], g_szSqlPassword[128], g_szSqlDatabase[32];
 new g_iForwards[Forwards];
@@ -137,8 +138,8 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
   if (g_hSqlTuple != Empty_Handle) {
     formatex(g_szQuery, charsmax(g_szQuery),
       "INSERT INTO `pp_keys` (`key`, `default_value`) VALUES ('%s', '%s') \
-      ON DUPLICATE KEY UPDATE `default_value` = '%s';",
-      szKey, szDefaultValue, szDefaultValue
+      ON DUPLICATE KEY UPDATE `default_value` = VALUES(`default_value`);",
+      szKey, szDefaultValue
     );
 
     __debug("Insert key %s <%s>: %s", szKey, szDefaultValue, g_szQuery);
@@ -174,16 +175,20 @@ stock LoadPreferences(iPlayer) {
 
 stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
   if (g_hSqlTuple != Empty_Handle) {
+    // TODO: Было бы неплохо, при наличии ключа в g_tKeysIds, слать сразу значения, и только в ином случае начинать с ключа
+    // И даже если начинать с ключа, в колбеке всё ровно перепроверять g_tKeysIds (szData[3]) т.к. сраная асинхронщина
     formatex(g_szQuery, charsmax(g_szQuery),
       "INSERT INTO `pp_keys` (`key`, `default_value`) VALUES ('%s', '%s') \
-      ON DUPLICATE KEY UPDATE `default_value` = '%s';",
-      szKey, szDefaultValue, szDefaultValue
+      ON DUPLICATE KEY UPDATE `default_value` = VALUES(`default_value`);",
+      szKey, szDefaultValue
     );
 
+    // TODO: Было бы неплохо в глобаг скоп выкинуть
     enum data {
       query_state,
       player_id,
       player_userid,
+      key_id,
       value[256]
     };
 
@@ -192,6 +197,7 @@ stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
     szData[query_state] = State_InsertKey;
     szData[player_id] = iPlayer;
     szData[player_userid] = get_user_userid(iPlayer);
+    TrieGetCell(g_tKeysIds, szKey, szData[key_id]);
     formatex(szData[value], charsmax(szData[value]), szValue);
 
     __debug("Insert key %s: %d / %d - %s",
@@ -216,13 +222,18 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
 
   switch (szData[0]) {
     case State_LoadKeys: {
-      new szKey[64], szDefaultValue[256];
+      new szKey[64], szDefaultValue[256], sKeyId[11];
+
+      TrieDestroy(g_tKeysIds);
+      g_tKeysIds = TrieCreate();
 
       while (SQL_MoreResults(hQuery)) {
+        SQL_ReadResult(hQuery, SQL_FieldNameToNum(hQuery, "id"), sKeyId, charsmax(sKeyId));
         SQL_ReadResult(hQuery, SQL_FieldNameToNum(hQuery, "key"), szKey, charsmax(szKey));
         SQL_ReadResult(hQuery, SQL_FieldNameToNum(hQuery, "default_value"), szDefaultValue, charsmax(szDefaultValue));
 
         TrieSetString(g_tKeys, szKey, szDefaultValue);
+        TrieSetCell(g_tKeysIds, szKey, str_to_num(sKeyId));
 
         SQL_NextRow(hQuery);
       }
@@ -330,16 +341,15 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       if (iUserid != get_user_userid(iPlayer))
         return;
 
-      new szValue[256];
-      formatex(szValue, charsmax(szValue), szData[3], charsmax(szData[]));
+      new iKeyId = szData[3] == 0 ? SQL_GetInsertId(hQuery) : szData[3];
 
       formatex(g_szQuery, charsmax(g_szQuery),
         "INSERT INTO `pp_preferences` (`player_id`, `key_id`, `value`) VALUES (%d, %d, '%s') \
-        ON DUPLICATE KEY UPDATE `value` = '%s';",
-        g_iPlayerDatabaseId[iPlayer], SQL_GetInsertId(hQuery), szValue, szValue
+        ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);",
+        g_iPlayerDatabaseId[iPlayer], iKeyId, szData[4]
       );
 
-      __debug("State: Insert key #3 <%d><%d><%d><%s>: %s", iPlayer, iUserid, get_user_userid(iPlayer), szValue, g_szQuery);
+      __debug("State: Insert key #3 <%d><%d><%d><%s>: %s", iPlayer, iUserid, get_user_userid(iPlayer), szData[4], g_szQuery);
 
       szData[0] = State_InsertPreference;
 
@@ -403,7 +413,7 @@ ConnectionTest() {
   g_tKeys = TrieCreate();
 
   formatex(g_szQuery, charsmax(g_szQuery),
-    "SELECT * FROM `pp_keys`"
+    "SELECT `id`, `key`, `default_value` FROM `pp_keys`"
   );
 
   new iData[1];
