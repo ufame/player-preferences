@@ -39,7 +39,7 @@ jobs:
           version: "1.10"
 
       - name: Compile AMXX plugins
-        working-directory: addons/amxmodx/scripting/
+        working-directory: scripting/
         run: |
           mkdir ../plugins/
 
