@@ -394,7 +394,7 @@ CreateForwards() {
 ConnectionTest() {
   g_hSqlTuple = SQL_MakeDbTuple(g_szSqlHost, g_szSqlUser, g_szSqlPassword, g_szSqlDatabase);
 
-  new szError[512], iErrorCode, retVal;
+  new szError[512], iErrorCode;
   new Handle: hConnection = SQL_Connect(g_hSqlTuple, iErrorCode, szError, charsmax(szError));
 
   if (hConnection == Empty_Handle) {
@@ -403,7 +403,7 @@ ConnectionTest() {
 
     log_error(AMX_ERR_NATIVE, "[PP] Connection error[%d]: %s", iErrorCode, szError);
 
-    ExecuteForward(g_iForwards[Forward_Initialized], retVal);
+    ExecuteForward(g_iForwards[Forward_Initialized]);
 
     return;
   }
@@ -421,7 +421,7 @@ ConnectionTest() {
 
   SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, iData, sizeof iData);
 
-  ExecuteForward(g_iForwards[Forward_Initialized], retVal);
+  ExecuteForward(g_iForwards[Forward_Initialized]);
 }
 
 SQL_ThreadError(Handle: hQuery, szError[], iError, Float: flQueueTime) {
