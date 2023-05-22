@@ -6,7 +6,7 @@ With this plugin, players can easily save and load their preferences, even on di
 
 ## Usage
 
-1. From the import folder, take the init_.sql file and import it into your database
+1. From the `migrations` folder, take the `create_tables.sql` file and import it into your database
 2. Put the contents of the scripting folder in the directory of your server (your_server_folder/cstrike/addons/amxmodx/scripting)
 3. Compile `player_prefs.sma` [how to compile?](https://dev-cs.ru/threads/246/)
 4. Add `player_prefs.amxx` into your `plugins.ini` file
