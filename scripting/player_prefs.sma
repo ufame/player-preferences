@@ -37,7 +37,7 @@ new Handle: g_hSqlTuple;
 new bool: g_bDebugMode;
 
 public plugin_init() {
-  register_plugin("Player preferences", "1.0.1", "ufame");
+  register_plugin("Player preferences", "1.0.2", "ufame");
 
   CreateForwards();
   CreateCvars();
