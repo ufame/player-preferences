@@ -150,12 +150,18 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
     SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, iData, sizeof iData);
   }
 
+  if (g_tKeys == Invalid_Trie)
+   g_tKeys = TrieCreate();
+
   return bool: TrieSetString(g_tKeys, szKey, szDefaultValue);
 }
 
 stock LoadPreferences(iPlayer) {
-  if (g_hSqlTuple == Empty_Handle)
+  if (g_hSqlTuple == Empty_Handle) {
+    ExecuteForward(g_iForwards[Forward_PlayerLoaded], _, iPlayer);
+
     return;
+  }
 
   new szAuth[MAX_AUTHID_LENGTH];
   get_user_authid(iPlayer, szAuth, charsmax(szAuth));
@@ -403,14 +409,12 @@ ConnectionTest() {
 
     log_error(AMX_ERR_NATIVE, "[PP] Connection error[%d]: %s", iErrorCode, szError);
 
-    ExecuteForward(g_iForwards[Forward_Initialized]);
+    ExecuteForward(g_iForwards[Forward_Initialized], _, false);
 
     return;
   }
 
   log_amx("[PP] Connection to database successfully estabilished");
-
-  g_tKeys = TrieCreate();
 
   formatex(g_szQuery, charsmax(g_szQuery),
     "SELECT `id`, `key`, `default_value` FROM `pp_keys`"
@@ -421,7 +425,7 @@ ConnectionTest() {
 
   SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, iData, sizeof iData);
 
-  ExecuteForward(g_iForwards[Forward_Initialized]);
+  ExecuteForward(g_iForwards[Forward_Initialized], _, true);
 }
 
 SQL_ThreadError(Handle: hQuery, szError[], iError, Float: flQueueTime) {
