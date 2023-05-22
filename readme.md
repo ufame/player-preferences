@@ -1,5 +1,9 @@
 # Player preferences
 
+<p align="center" width="100%">
+  <img src="https://dev-cs.ru/data/resource_icons/1/1546.jpg?1679073113">
+</p>
+
 Allows you to easily manage and store player preferences, such as hats, music and other settings.
 
 With this plugin, players can easily save and load their preferences, even on different servers. This means they can quickly and easily return to their preferred settings without having to manually adjust settings every time they join a new server.
