@@ -392,7 +392,7 @@ CreateCvars() {
 }
 
 CreateForwards() {
-  g_iForwards[Forward_Initialized] = CreateMultiForward("pp_init", ET_IGNORE);
+  g_iForwards[Forward_Initialized] = CreateMultiForward("pp_init", ET_IGNORE, FP_CELL);
   g_iForwards[Forward_PlayerLoaded] = CreateMultiForward("pp_player_loaded", ET_IGNORE, FP_CELL);
   g_iForwards[Forward_PlayerSaved] = CreateMultiForward("pp_player_saved", ET_IGNORE, FP_CELL);
 }
