@@ -32,7 +32,7 @@ forward pp_player_saved(const id);
 *
 * @return True if the player's preferences have been loaded, false otherwise.
 */
-native pp_is_loaded(const id);
+native bool: pp_is_loaded(const id);
 
 /**
 * Gets the value of a player's preference and copies it into the specified buffer.
@@ -44,7 +44,7 @@ native pp_is_loaded(const id);
 *
 * @return True if the preference was found and copied, false otherwise.
 */
-native pp_get_preference(const id, const key[], dest[], len);
+native bool: pp_get_preference(const id, const key[], dest[], len);
 
 /**
 * Sets the value of a player's preference.
@@ -74,11 +74,15 @@ native pp_set_key_default_value(const key[], const default_value[]);
 * @param id Player ID to get preference for
 * @param key Key of the preference to get
 *
-* @return The preference value as a number, or 0 if the preference was not found or
+* @return The preference value as a number, or -1 if the preference was not found
 */
 stock pp_get_num(const id, const key[]) {
   new temp[64];
-  pp_get_preference(id, key, temp, charsmax(temp));
+  new bool: result = pp_get_preference(id, key, temp, charsmax(temp));
+
+  if (!result) {
+    return -1;
+  }
 
   return str_to_num(temp);
 }
@@ -89,11 +93,15 @@ stock pp_get_num(const id, const key[]) {
 * @param id Player ID to get preference for
 * @param key Key of the preference to get
 *
-* @return The preference value as a floating-point number, or 0.0 if the preference was
+* @return The preference value as a floating-point number, or -1.0 if the preference was not found
 */
 stock Float: pp_get_float(const id, const key[]) {
   new temp[64];
-  pp_get_preference(id, key, temp, charsmax(temp));
+  new bool: result = pp_get_preference(id, key, temp, charsmax(temp));
+
+  if (!result) {
+    return -1.0;
+  }
 
   return str_to_float(temp);
 }

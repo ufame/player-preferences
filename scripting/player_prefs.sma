@@ -37,7 +37,7 @@ new Handle: g_hSqlTuple;
 new bool: g_bDebugMode;
 
 public plugin_init() {
-  register_plugin("Player preferences", "1.0.3", "ufame");
+  register_plugin("Player preferences", "1.1.0", "ufame");
 
   CreateForwards();
   CreateCvars();
@@ -398,6 +398,7 @@ CreateForwards() {
 }
 
 ConnectionTest() {
+  SQL_SetAffinity("mysql");
   g_hSqlTuple = SQL_MakeDbTuple(g_szSqlHost, g_szSqlUser, g_szSqlPassword, g_szSqlDatabase);
 
   new szError[512], iErrorCode;
@@ -407,7 +408,7 @@ ConnectionTest() {
     SQL_FreeHandle(g_hSqlTuple);
     g_hSqlTuple = Empty_Handle;
 
-    log_error(AMX_ERR_NATIVE, "[PP] Connection error[%d]: %s", iErrorCode, szError);
+    abort(AMX_ERR_NATIVE, "[PP] Connection error[%d]: %s", iErrorCode, szError);
 
     ExecuteForward(g_iForwards[Forward_Initialized], _, false);
 
