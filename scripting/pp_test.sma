@@ -26,7 +26,7 @@ public plugin_init() {
 public pp_init(bool: database_connected) {
   log_amx("Database connected: %d", database_connected);
 
-  pp_set_key_default_value(setting_names[AutoOpenMenu], "true");
+  pp_set_key_default_value(setting_names[AutoOpenMenu], "1");
   pp_set_key_default_value(setting_names[HudPosition_X], "-1.0");
   pp_set_key_default_value(setting_names[HudPosition_Y], "0.20");
 }
