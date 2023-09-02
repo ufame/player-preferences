@@ -1,17 +1,21 @@
 # Player preferences
 
+<p align="center" width="100%">
+  <img src="https://dev-cs.ru/data/resource_icons/1/1546.jpg?1679073113">
+</p>
+
 Allows you to easily manage and store player preferences, such as hats, music and other settings.
 
 With this plugin, players can easily save and load their preferences, even on different servers. This means they can quickly and easily return to their preferred settings without having to manually adjust settings every time they join a new server.
 
 ## Usage
 
-1. From the import folder, take the init_.sql file and import it into your database
+1. From the `migrations` folder, take the `create_tables.sql` file and import it into your database
 2. Put the contents of the scripting folder in the directory of your server (your_server_folder/cstrike/addons/amxmodx/scripting)
-3. Compile `player_preferences.sma` [how to compile?](https://dev-cs.ru/threads/246/)
-4. Add `player_preferences.amxx` into your `plugins.ini` file
+3. Compile `player_prefs.sma` [how to compile?](https://dev-cs.ru/threads/246/)
+4. Add `player_prefs.amxx` into your `plugins.ini` file
 5. Restart server or change map
-6. After restarting the server or changing the map, a config will be created in the folder `/cstrike/addons/amxmodx/configs/plugins` with the name `plugin-player_preferences.cfg`. In this config, enter the data to connect to your database
+6. After restarting the server or changing the map, a config will be created in the folder `/cstrike/addons/amxmodx/configs/plugins` with the name `plugin-player_prefs.cfg`. In this config, enter the data to connect to your database
 7. Use [API](https://github.com/ufame/player-preferences/blob/master/scripting/include/player_prefs.inc) to create your own plugins that allow you to save user preferences!
 
 ## Example

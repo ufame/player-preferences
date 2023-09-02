@@ -47,7 +47,7 @@ public pp_handler(id) {
 
   menu_addtext(menuId, fmt("Current X \y%.2f Y \y%.2f",
     g_playerData[id][HudPosition_X], g_playerData[id][HudPosition_Y]
-  ));
+  ), 0);
   menu_additem(menuId, "Hud X +");
   menu_additem(menuId, "Hud Y +");
   menu_additem(menuId, "Hud X -");
