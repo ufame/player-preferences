@@ -22,6 +22,14 @@ enum _: Forwards {
   Forward_PlayerSaved
 };
 
+enum _: IntertKey {
+  query_state,
+  player_id,
+  player_userid,
+  key_id,
+  value[256]
+};
+
 new g_iPlayerDatabaseId[MAX_PLAYERS + 1];
 new Trie: g_tPlayerPreferences[MAX_PLAYERS + 1];
 
@@ -189,16 +197,7 @@ stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
       szKey, szDefaultValue
     );
 
-    // TODO: Было бы неплохо в глобаг скоп выкинуть
-    enum data {
-      query_state,
-      player_id,
-      player_userid,
-      key_id,
-      value[256]
-    };
-
-    new szData[data];
+    new szData[IntertKey];
 
     szData[query_state] = State_InsertKey;
     szData[player_id] = iPlayer;
