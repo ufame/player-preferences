@@ -1,10 +1,13 @@
 #include <amxmodx>
 #include <sqlx>
 #include <player_prefs>
+#include <json>
 
 #pragma semicolon 1
 
 const MAX_QUERY_LENGTH = 4096;
+
+new const CONFIG_FILE[] = "addons/amxmodx/configs/player_prefs.json";
 
 enum {
   State_LoadKeys,
@@ -22,6 +25,14 @@ enum _: Forwards {
   Forward_PlayerSaved
 };
 
+enum _: IntertKey {
+  query_state,
+  player_id,
+  player_userid,
+  key_id,
+  value[256]
+};
+
 new g_iPlayerDatabaseId[MAX_PLAYERS + 1];
 new Trie: g_tPlayerPreferences[MAX_PLAYERS + 1];
 
@@ -37,10 +48,10 @@ new Handle: g_hSqlTuple;
 new bool: g_bDebugMode;
 
 public plugin_init() {
-  register_plugin("Player preferences", "1.1.0", "ufame");
+  register_plugin("Player preferences", "1.1.1", "ufame");
 
   CreateForwards();
-  CreateCvars();
+  ReadDbCreadentials();
 
   g_bDebugMode = bool: (plugin_flags() & AMX_FLAG_DEBUG);
 }
@@ -189,16 +200,7 @@ stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
       szKey, szDefaultValue
     );
 
-    // TODO: Было бы неплохо в глобаг скоп выкинуть
-    enum data {
-      query_state,
-      player_id,
-      player_userid,
-      key_id,
-      value[256]
-    };
-
-    new szData[data];
+    new szData[IntertKey];
 
     szData[query_state] = State_InsertKey;
     szData[player_id] = iPlayer;
@@ -380,13 +382,15 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
   }
 }
 
-CreateCvars() {
-  bind_pcvar_string(create_cvar("pp_host", "Host", FCVAR_SPONLY | FCVAR_PROTECTED | FCVAR_UNLOGGED), g_szSqlHost, charsmax(g_szSqlHost));
-  bind_pcvar_string(create_cvar("pp_user", "User", FCVAR_SPONLY | FCVAR_PROTECTED | FCVAR_UNLOGGED), g_szSqlUser, charsmax(g_szSqlUser));
-  bind_pcvar_string(create_cvar("pp_pass", "Password", FCVAR_SPONLY | FCVAR_PROTECTED | FCVAR_UNLOGGED), g_szSqlPassword, charsmax(g_szSqlPassword));
-  bind_pcvar_string(create_cvar("pp_db", "Database", FCVAR_SPONLY | FCVAR_PROTECTED | FCVAR_UNLOGGED), g_szSqlDatabase, charsmax(g_szSqlDatabase));
+ReadDbCreadentials() {
+  new JSON: credsConfig = json_parse(CONFIG_FILE, true);
 
-  AutoExecConfig();
+  json_object_get_string(credsConfig, "host", g_szSqlHost, charsmax(g_szSqlHost));
+  json_object_get_string(credsConfig, "user", g_szSqlUser, charsmax(g_szSqlUser));
+  json_object_get_string(credsConfig, "pass", g_szSqlPassword, charsmax(g_szSqlPassword));
+  json_object_get_string(credsConfig, "db", g_szSqlDatabase, charsmax(g_szSqlDatabase));
+
+  json_free(credsConfig);
 
   ConnectionTest();
 }
