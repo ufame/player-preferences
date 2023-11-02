@@ -51,7 +51,7 @@ public plugin_init() {
   register_plugin("Player preferences", "1.1.1", "ufame");
 
   CreateForwards();
-  ReadDbCreadentials();
+  ReadDbCredentials();
 
   g_bDebugMode = bool: (plugin_flags() & AMX_FLAG_DEBUG);
 }
@@ -382,8 +382,23 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
   }
 }
 
-ReadDbCreadentials() {
-  new JSON: credsConfig = json_parse(CONFIG_FILE, true);
+ReadDbCredentials() {
+  if (!file_exists(CONFIG_FILE)) {
+    abort(AMX_ERR_GENERAL, "[PP] DB credentials file not found (%s).", CONFIG_FILE);
+    return;
+  }
+
+  new JSON: credsConfig = json_parse(CONFIG_FILE, true, true);
+
+  if (credsConfig == Invalid_JSON) {
+    abort(AMX_ERR_GENERAL, "[PP] JSON synax error in DB credentials file (%s).", CONFIG_FILE);
+    return;
+  }
+
+  if (!json_is_object(credsConfig)) {
+    abort(AMX_ERR_GENERAL, "[PP] DB credentials file must contain a JSON-object (%s).", CONFIG_FILE);
+    return;
+  }
 
   json_object_get_string(credsConfig, "host", g_szSqlHost, charsmax(g_szSqlHost));
   json_object_get_string(credsConfig, "user", g_szSqlUser, charsmax(g_szSqlUser));
