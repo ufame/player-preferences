@@ -33,7 +33,7 @@ enum _: IntertKey {
   value[256]
 };
 
-new g_iPlayerDatabaseId[MAX_PLAYERS + 1];
+new g_iPlayerDatabaseId[MAX_PLAYERS + 1] = {0, ...};
 new Trie: g_tPlayerPreferences[MAX_PLAYERS + 1];
 
 new Trie: g_tKeys;
@@ -81,10 +81,7 @@ public bool: native_is_loaded(iPlugin, iArgs) {
 
   new iPlayer = get_param(arg_player_id);
 
-  if (!is_user_connected(iPlayer))
-    return false;
-
-  return bool: g_iPlayerDatabaseId[iPlayer];
+  return IsUserLoaded(iPlayer);
 }
 
 public bool: native_get_preference(iPlugin, iArgs) {
@@ -126,6 +123,11 @@ public bool: native_set_preference(iPlugin, iArgs) {
   if (!is_user_connected(iPlayer))
     return false;
 
+  if (!IsUserLoaded(iPlayer)) {
+    log_error(0, "Attempt to set preference for not loaded player (%d).", iPlayer);
+    return false;
+  }
+
   new szKey[32], szValue[256], szDefaultValue[256];
 
   get_string(arg_key, szKey, charsmax(szKey));
@@ -165,6 +167,13 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
    g_tKeys = TrieCreate();
 
   return bool: TrieSetString(g_tKeys, szKey, szDefaultValue);
+}
+
+bool:IsUserLoaded(const iPlayer) {
+  if (!is_user_connected(iPlayer))
+    return false;
+
+  return g_iPlayerDatabaseId[iPlayer] > 0;
 }
 
 stock LoadPreferences(iPlayer) {
