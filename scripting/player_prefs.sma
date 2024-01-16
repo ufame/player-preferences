@@ -349,6 +349,9 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       if (iUserid != get_user_userid(iPlayer))
         return;
 
+      if (g_iPlayerDatabaseId[iPlayer] <= 0)
+        return;
+
       new iKeyId = szData[3] == 0 ? SQL_GetInsertId(hQuery) : szData[3];
 
       formatex(g_szQuery, charsmax(g_szQuery),
