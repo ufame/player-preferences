@@ -124,7 +124,7 @@ public bool: native_set_preference(iPlugin, iArgs) {
     return false;
 
   if (!IsUserLoaded(iPlayer)) {
-    log_error(0, "Attempt to set preference for not loaded player (%d).", iPlayer);
+    log_error(AMX_ERR_NONE, "Attempt to set preference for not loaded player (%d).", iPlayer);
     return false;
   }
 
