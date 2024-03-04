@@ -155,7 +155,7 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
       szKey, szDefaultValue
     );
 
-    __debug("Insert key %s <%s>: %s", szKey, szDefaultValue, g_szQuery);
+    __debug("[PP] [set_key_default_value] Insert key <%s> - Default value: %s^nQUERY: %s", szKey, szDefaultValue, g_szQuery);
 
     new iData[1];
     iData[0] = State_SetDefaultValue;
@@ -217,7 +217,7 @@ stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
     TrieGetCell(g_tKeysIds, szKey, szData[key_id]);
     formatex(szData[value], charsmax(szData[value]), szValue);
 
-    __debug("Insert key %s: %d / %d - %s",
+    __debug("[PP] Insert key <%s> - value: %s | PlayerId: %d, UserId: %d",
       szKey, szData[player_id], szData[player_userid], szValue
     );
 
@@ -262,7 +262,8 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       new iPlayer = szData[1];
       new iUserid = szData[2];
 
-      __debug("State: Load Player #1 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("-----");
+      __debug("[PP] PlayerId: %d | State: Load Player (#1) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       if (iUserid != get_user_userid(iPlayer))
         return;
@@ -270,7 +271,7 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       new szAuth[MAX_AUTHID_LENGTH];
       get_user_authid(iPlayer, szAuth, charsmax(szAuth));
 
-      __debug("State: Load Player #2 <%d><%d><%d><%s>", iPlayer, iUserid, get_user_userid(iPlayer), szAuth);
+      __debug("[PP] PlayerId: %d | State: Load Player (#2) | UserIdSaved: %d, UserIdCurrent: %d, AuthId: <%s>", iPlayer, iUserid, get_user_userid(iPlayer), szAuth);
 
       if (!SQL_NumResults(hQuery)) {
         formatex(g_szQuery, charsmax(g_szQuery),
@@ -282,7 +283,8 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
 
         SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, szData, iDataSize);
 
-        __debug("State: Insert Player #1 <%d><%d><%d><%s>: %s", iPlayer, iUserid, get_user_userid(iPlayer), szAuth, g_szQuery);
+        __debug("-----");
+        __debug("[PP] PlayerId: %d | State: Insert Player (#1) | UserIdSaved: %d, UserIdCurrent: %d, AuthId: <%s>^nQUERY: %s", iPlayer, iUserid, get_user_userid(iPlayer), szAuth, g_szQuery);
         
         return;
       }
@@ -302,19 +304,20 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
 
       SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, szData, iDataSize);
 
-      __debug("State: Load Preferences #1 <%d><%d><%d><%s>: %s", iPlayer, iUserid, get_user_userid(iPlayer), szAuth, g_szQuery);
+      __debug("-----");
+      __debug("[PP] PlayerId: %d | State: Load Preferences (#1) | UserIdSaved: %d, UserIdCurrent: %d, AuthId: <%s>^nQUERY: %s", iPlayer, iUserid, get_user_userid(iPlayer), szAuth, g_szQuery);
     }
 
     case State_InsertPlayer: {
       new iPlayer = szData[1];
       new iUserid = szData[2];
 
-      __debug("State: Insert Player #2 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Insert Player (#2) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       if (iUserid != get_user_userid(iPlayer))
         return;
 
-      __debug("State: Insert Player #3 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Insert Player (#3) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       g_iPlayerDatabaseId[iPlayer] = SQL_GetInsertId(hQuery);
 
@@ -325,12 +328,12 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       new iPlayer = szData[1];
       new iUserid = szData[2];
 
-      __debug("State: Load Preferences #2 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Load Preferences (#2) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       if (iUserid != get_user_userid(iPlayer))
         return;
       
-      __debug("State: Load Preferences #3 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Load Preferences (#3) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       new szKey[64], szValue[256];
 
@@ -347,13 +350,14 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       }
 
       ExecuteForward(g_iForwards[Forward_PlayerLoaded], _, iPlayer);
+      __debug("[PP] PlayerId: %d successfully loaded.", iPlayer);
     }
 
     case State_InsertKey: {
       new iPlayer = szData[1];
       new iUserid = szData[2];
 
-      __debug("State: Insert key #2 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Insert key (#2) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       if (iUserid != get_user_userid(iPlayer))
         return;
@@ -369,7 +373,7 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
         g_iPlayerDatabaseId[iPlayer], iKeyId, szData[4]
       );
 
-      __debug("State: Insert key #3 <%d><%d><%d><%s>: %s", iPlayer, iUserid, get_user_userid(iPlayer), szData[4], g_szQuery);
+      __debug("[PP] PlayerId: %d | State: Insert key (#3) | UserIdSaved: %d, UserIdCurrent: %d, Value: <%s>^nQUERY: %s", iPlayer, iUserid, get_user_userid(iPlayer), szData[4], g_szQuery);
 
       szData[0] = State_InsertPreference;
 
@@ -380,12 +384,13 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       new iPlayer = szData[1];
       new iUserid = szData[2];
 
-      __debug("State: Insert Preference #2 <%d><%d><%d>", iPlayer, iUserid, get_user_userid(iPlayer));
+      __debug("[PP] PlayerId: %d | State: Insert Preference (#2) | UserIdSaved: %d, UserIdCurrent: %d", iPlayer, iUserid, get_user_userid(iPlayer));
 
       if (iUserid != get_user_userid(iPlayer))
         return;
 
       ExecuteForward(g_iForwards[Forward_PlayerSaved], _, iPlayer);
+      __debug("[PP] PlayerId: %d successfully saved.", iPlayer);
     }
 
     case State_SetDefaultValue: {
