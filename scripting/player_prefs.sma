@@ -51,6 +51,7 @@ public plugin_init() {
   register_plugin("Player preferences", "1.1.1", "ufame");
 
   CreateForwards();
+  InitializeArrays();
   ReadDbCredentials();
 
   g_bDebugMode = bool: (plugin_flags() & AMX_FLAG_DEBUG);
@@ -162,9 +163,6 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
 
     SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, iData, sizeof iData);
   }
-
-  if (g_tKeys == Invalid_Trie)
-   g_tKeys = TrieCreate();
 
   return bool: TrieSetString(g_tKeys, szKey, szDefaultValue);
 }
@@ -392,6 +390,10 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
       
     }
   }
+}
+
+InitializeArrays() {
+  g_tKeys = TrieCreate();
 }
 
 ReadDbCredentials() {
