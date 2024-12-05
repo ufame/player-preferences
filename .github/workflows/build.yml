@@ -91,7 +91,7 @@ jobs:
           mv migrations publish/
 
           if [ ! -z "${STORE_README}" ]; then
-            mv README.md publish/
+            mv readme.md publish/
           fi
 
       - name: Deploy artifact
