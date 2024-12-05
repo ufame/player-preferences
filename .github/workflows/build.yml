@@ -13,8 +13,6 @@ on:
 
 env:
   PACKAGE_NAME: player-preferences
-  STORE_README: 1
-  GENERATE_PLUGINS_INI: 0
 
 jobs:
   build:
@@ -56,7 +54,6 @@ jobs:
       - name: Compile plugins
         working-directory: scripting/
         env:
-          GENERATE_PLUGINS_INI: ${{ env.GENERATE_PLUGINS_INI }}
           PLUGINS_INI_POSTFIX: ${{ env.PLUGINS_INI_POSTFIX }}
         run: |
           compile() {
@@ -69,12 +66,6 @@ jobs:
             echo -n "Compiling $sourcefile ... "
             amxxpc $sourcefile -o"$output_path" \
               -i"include"
-              
-            if [ ! -z "${GENERATE_PLUGINS_INI}" ]; then
-              plugin_ini_path="../configs/plugins-${PLUGINS_INI_POSTFIX}.ini"
-              touch $plugin_ini_path
-              echo $amxxfile >> $plugin_ini_path
-            fi
           }
           export -f compile
 
@@ -89,10 +80,7 @@ jobs:
           mv configs $package_amxmodx_path
           mv scripting $package_amxmodx_path
           mv migrations publish/
-
-          if [ ! -z "${STORE_README}" ]; then
-            mv readme.md publish/
-          fi
+          mv readme.md publish/
 
       - name: Deploy artifact
         uses: actions/upload-artifact@v4.3.1
