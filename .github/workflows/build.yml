@@ -79,6 +79,7 @@ jobs:
           mkdir -p $package_amxmodx_path
           mv configs $package_amxmodx_path
           mv scripting $package_amxmodx_path
+          mv plugins $package_amxmodx_path
           mv migrations publish/
           mv readme.md publish/
 
