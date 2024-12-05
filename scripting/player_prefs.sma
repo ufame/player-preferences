@@ -102,8 +102,11 @@ public bool: native_get_preference(iPlugin, iArgs) {
 
   get_string(arg_key, szKey, charsmax(szKey));
 
-  if (!TrieGetString(g_tPlayerPreferences[iPlayer], szKey, szValue, charsmax(szValue)))
+  if (g_tPlayerPreferences[iPlayer] !== Invalid_Trie && TrieKeyExists(g_tPlayerPreferences[iPlayer], szKey)) {
+    TrieGetString(g_tPlayerPreferences[iPlayer], szKey, szValue, charsmax(szValue));
+  } else if (g_tKeys !== Invalid_Trie && TrieKeyExists(g_tKeys, szKey)) {
     TrieGetString(g_tKeys, szKey, szValue, charsmax(szValue));
+  }
 
   set_string(arg_dest, szValue, iLen);
 
