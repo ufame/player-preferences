@@ -50,6 +50,10 @@ new bool: g_bDebugMode;
 public plugin_init() {
   register_plugin("Player preferences", "1.2.0", "ufame");
 
+  if (g_tKeys == Invalid_Trie) {
+    g_tKeys = TrieCreate();
+  }
+
   CreateForwards();
   ReadDbCredentials();
 
@@ -165,9 +169,6 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
 
     SQL_ThreadQuery(g_hSqlTuple, "ThreadQuery_Handler", g_szQuery, iData, sizeof iData);
   }
-
-  if (g_tKeys == Invalid_Trie)
-   g_tKeys = TrieCreate();
 
   return bool: TrieSetString(g_tKeys, szKey, szDefaultValue);
 }
