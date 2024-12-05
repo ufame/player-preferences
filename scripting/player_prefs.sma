@@ -154,7 +154,7 @@ public bool: native_set_key_default_value(iPlugin, iArgs) {
   if (g_hSqlTuple != Empty_Handle) {
     formatex(g_szQuery, charsmax(g_szQuery),
       "INSERT INTO `pp_keys` (`key`, `default_value`) VALUES ('%s', '%s') \
-      ON DUPLICATE KEY UPDATE `default_value` = VALUES(`default_value`);",
+      ON DUPLICATE KEY UPDATE `default_value` = VALUES (`default_value`);",
       szKey, szDefaultValue
     );
 
@@ -208,7 +208,7 @@ stock SetPreference(iPlayer, szKey[], szValue[], szDefaultValue[]) {
     // И даже если начинать с ключа, в колбеке всё ровно перепроверять g_tKeysIds (szData[3]) т.к. сраная асинхронщина
     formatex(g_szQuery, charsmax(g_szQuery),
       "INSERT INTO `pp_keys` (`key`, `default_value`) VALUES ('%s', '%s') \
-      ON DUPLICATE KEY UPDATE `default_value` = VALUES(`default_value`);",
+      ON DUPLICATE KEY UPDATE `default_value` = VALUES (`default_value`);",
       szKey, szDefaultValue
     );
 
@@ -374,7 +374,7 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
 
       formatex(g_szQuery, charsmax(g_szQuery),
         "INSERT INTO `pp_preferences` (`player_id`, `key_id`, `value`) VALUES (%d, %d, '%s') \
-        ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);",
+        ON DUPLICATE KEY UPDATE `value` = VALUES (`value`);",
         g_iPlayerDatabaseId[iPlayer], iKeyId, szData[4]
       );
 
