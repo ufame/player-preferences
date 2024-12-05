@@ -176,7 +176,7 @@ bool:IsUserLoaded(const iPlayer) {
   if (!is_user_connected(iPlayer))
     return false;
 
-  return g_iPlayerDatabaseId[iPlayer] > 0;
+  return g_iPlayerDatabaseId[iPlayer] > 0 && g_tPlayerPreferences[iPlayer] != Invalid_Trie;
 }
 
 stock LoadPreferences(iPlayer) {
@@ -292,6 +292,8 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
         return;
       }
 
+      // Это немного ломало логику функи IsUserLoaded, в момент между этим и State_LoadPreferences
+      // Добавил там допом проверку на созданность trie с префами
       g_iPlayerDatabaseId[iPlayer] = SQL_ReadResult(hQuery, SQL_FieldNameToNum(hQuery, "id"));
 
       formatex(g_szQuery, charsmax(g_szQuery),
