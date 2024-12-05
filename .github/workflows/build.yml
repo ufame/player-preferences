@@ -84,8 +84,11 @@ jobs:
         env:
           STORE_README: ${{ env.STORE_README }}
         run: |
-          mkdir -p publish/${{ env.PACKAGE_NAME }}/addons
-          mv amxmodx/ publish/${{ env.PACKAGE_NAME }}/addons
+          package_amxmodx_path=publish/${{ env.PACKAGE_NAME }}/addons/amxmodx/
+          mkdir -p $package_amxmodx_path
+          mv configs $package_amxmodx_path
+          mv scripting $package_amxmodx_path
+          mv migrations publish/
 
           if [ ! -z "${STORE_README}" ]; then
             mv README.md publish/
