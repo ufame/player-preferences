@@ -102,9 +102,9 @@ public bool: native_get_preference(iPlugin, iArgs) {
 
   get_string(arg_key, szKey, charsmax(szKey));
 
-  if (g_tPlayerPreferences[iPlayer] !== Invalid_Trie && TrieKeyExists(g_tPlayerPreferences[iPlayer], szKey)) {
+  if (g_tPlayerPreferences[iPlayer] != Invalid_Trie && TrieKeyExists(g_tPlayerPreferences[iPlayer], szKey)) {
     TrieGetString(g_tPlayerPreferences[iPlayer], szKey, szValue, charsmax(szValue));
-  } else if (g_tKeys !== Invalid_Trie && TrieKeyExists(g_tKeys, szKey)) {
+  } else if (g_tKeys != Invalid_Trie && TrieKeyExists(g_tKeys, szKey)) {
     TrieGetString(g_tKeys, szKey, szValue, charsmax(szValue));
   }
 
@@ -456,6 +456,7 @@ ConnectionTest() {
     return;
   }
 
+  SQL_FreeHandle(hConnection);
   log_amx("[PP] Connection to database successfully estabilished");
 
   formatex(g_szQuery, charsmax(g_szQuery),
