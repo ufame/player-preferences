@@ -54,7 +54,7 @@ jobs:
           version: "1.10.5428"
 
       - name: Compile plugins
-        working-directory: amxmodx/scripting/
+        working-directory: scripting/
         env:
           GENERATE_PLUGINS_INI: ${{ env.GENERATE_PLUGINS_INI }}
           PLUGINS_INI_POSTFIX: ${{ env.PLUGINS_INI_POSTFIX }}
