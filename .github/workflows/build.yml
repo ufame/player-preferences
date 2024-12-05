@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -11,54 +11,107 @@ on:
   release:
     types: [published]
 
+env:
+  PACKAGE_NAME: player-preferences
+
 jobs:
   build:
     name: "Build"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
-      sha: ${{ steps.declare_sha.outputs.sha }}
-      semver: ${{ steps.declare_sha.outputs.semver }}
+      COMMIT_SHA: ${{ steps.declare_sha.outputs.COMMIT_SHA }}
+      SEMVER: ${{ steps.declare_sha.outputs.SEMVER }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
+
+      - name: Parse SemVer string (release)
+        id: semver_parser
+        if: |
+          github.event_name == 'release' &&
+          github.event.action == 'published' &&
+          startsWith(github.ref, 'refs/tags/')
+        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+        with:
+          input_string: ${{ github.ref }}
+          version_extractor_regex: 'refs\/tags\/(.*)$'
 
       - name: Declare SHA & package name
         id: declare_sha
         shell: bash
         run: |
           SHA=$(git rev-parse --short HEAD)
-          echo "COMMIT_SHA=${SHA}" >> $GITHUB_ENV
-          echo "sha=$SHA" >> $GITHUB_OUTPUT
-          echo "semver=${{ steps.semver_parser.outputs.fullversion }}" >> $GITHUB_OUTPUT
+          echo "COMMIT_SHA=$SHA" >> $GITHUB_OUTPUT        
+          echo "SEMVER=${{ steps.semver_parser.outputs.fullversion }}" >> $GITHUB_OUTPUT
 
       - name: Setup AMXXPawn Compiler
-        uses: wopox1337/setup-amxxpawn@v1.0.2
+        uses: wopox1337/setup-amxxpawn@v1.1.0
         with:
-          version: "1.10"
+          version: "1.10.5428"
 
-      - name: Compile AMXX plugins
+      - name: Compile plugins
         working-directory: scripting/
+        env:
+          PLUGINS_INI_POSTFIX: ${{ env.PLUGINS_INI_POSTFIX }}
         run: |
-          mkdir ../plugins/
+          compile() {
+            sourcefile=$1
+            amxxfile="$(echo $sourcefile | sed -e 's/\.sma$/.amxx/')"
+            output_path="../plugins/$amxxfile"
 
-          for sourcefile in *.sma;
-          do
-            amxxfile="`echo $sourcefile | sed -e 's/\.sma$/.amxx/'`"
+            mkdir -p $(dirname $output_path)
+
             echo -n "Compiling $sourcefile ... "
+            amxxpc $sourcefile -o"$output_path" \
+              -i"include"
+          }
+          export -f compile
 
-            amxxpc $sourcefile -o"../plugins/$amxxfile" \
-              -i"include" \
-          done
+          find . -type f -name "*.sma" -exec bash -c 'compile "$0"' {} \;
 
       - name: Move files
+        env:
+          STORE_README: ${{ env.STORE_README }}
         run: |
-          mkdir publish
-          mv addons/ publish/
+          package_amxmodx_path=publish/${{ env.PACKAGE_NAME }}/addons/amxmodx/
+          mkdir -p $package_amxmodx_path
+          mv configs $package_amxmodx_path
+          mv scripting $package_amxmodx_path
+          mv migrations publish/
+          mv readme.md publish/
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Deploy artifact
+        uses: actions/upload-artifact@v4.3.1
         with:
-          name: player-prefs-${{ env.COMMIT_SHA }}-dev
+          name: ${{ env.PACKAGE_NAME }}-${{ steps.declare_sha.outputs.COMMIT_SHA }}-dev
           path: publish/*
+
+  publish:
+    name: "Publish release"
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: |
+      github.event_name == 'release' &&
+      github.event.action == 'published' &&
+      startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4.1.4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ needs.build.outputs.COMMIT_SHA }}-dev
+
+      - name: Packaging binaries
+        id: packaging
+        run: 7z a -mm=Deflate -mfb=258 -mpass=15 -r ${{ env.PACKAGE_NAME }}-${{ needs.build.outputs.SEMVER }}.zip
+
+      - name: Publish artifacts
+        uses: softprops/action-gh-release@v2.0.4
+        id: publish-job
+        if: |
+          startsWith(github.ref, 'refs/tags/') &&
+          steps.packaging.outcome == 'success'
+        with:
+          files: |
+            *.zip

@@ -48,7 +48,7 @@ new Handle: g_hSqlTuple;
 new bool: g_bDebugMode;
 
 public plugin_init() {
-  register_plugin("Player preferences", "1.1.1", "ufame");
+  register_plugin("Player preferences", "1.2.0", "ufame");
 
   CreateForwards();
   ReadDbCredentials();
@@ -102,8 +102,11 @@ public bool: native_get_preference(iPlugin, iArgs) {
 
   get_string(arg_key, szKey, charsmax(szKey));
 
-  if (!TrieGetString(g_tPlayerPreferences[iPlayer], szKey, szValue, charsmax(szValue)))
+  if (g_tPlayerPreferences[iPlayer] !== Invalid_Trie && TrieKeyExists(g_tPlayerPreferences[iPlayer], szKey)) {
+    TrieGetString(g_tPlayerPreferences[iPlayer], szKey, szValue, charsmax(szValue));
+  } else if (g_tKeys !== Invalid_Trie && TrieKeyExists(g_tKeys, szKey)) {
     TrieGetString(g_tKeys, szKey, szValue, charsmax(szValue));
+  }
 
   set_string(arg_dest, szValue, iLen);
 
@@ -173,7 +176,7 @@ bool:IsUserLoaded(const iPlayer) {
   if (!is_user_connected(iPlayer))
     return false;
 
-  return g_iPlayerDatabaseId[iPlayer] > 0;
+  return g_iPlayerDatabaseId[iPlayer] > 0 && g_tPlayerPreferences[iPlayer] != Invalid_Trie;
 }
 
 stock LoadPreferences(iPlayer) {
@@ -289,6 +292,8 @@ public ThreadQuery_Handler(iFailState, Handle: hQuery, szError[], iError, szData
         return;
       }
 
+      // Это немного ломало логику функи IsUserLoaded, в момент между этим и State_LoadPreferences
+      // Добавил там допом проверку на созданность trie с префами
       g_iPlayerDatabaseId[iPlayer] = SQL_ReadResult(hQuery, SQL_FieldNameToNum(hQuery, "id"));
 
       formatex(g_szQuery, charsmax(g_szQuery),
