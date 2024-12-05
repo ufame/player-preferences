@@ -48,7 +48,7 @@ new Handle: g_hSqlTuple;
 new bool: g_bDebugMode;
 
 public plugin_init() {
-  register_plugin("Player preferences", "1.2.0", "ufame");
+  register_plugin("Player preferences", "1.2.1", "ufame");
 
   if (g_tKeys == Invalid_Trie) {
     g_tKeys = TrieCreate();
